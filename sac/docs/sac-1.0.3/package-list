@@ -1,0 +1,14 @@
+sac
+sac.examples.checkers
+sac.examples.helloworldgame
+sac.examples.helloworldgraph
+sac.examples.nim
+sac.examples.rectpacking
+sac.examples.slidingpuzzle
+sac.examples.sudoku
+sac.examples.tsp
+sac.game
+sac.graph
+sac.graphviz
+sac.stats
+sac.util
