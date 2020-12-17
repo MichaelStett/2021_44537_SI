@@ -37,21 +37,32 @@ if __name__ == '__main__':
     # Ensemble Boosted Trees with Synthetic Features Generation in Application to Bankruptcy Prediction.
     # Expert Systems with Applications.
     # http://archive.ics.uci.edu/ml/datasets/Polish+companies+bankruptcy+data
-    X, y = read_data("data/3year.csv")
+    # X, y = read_data("data/3year.csv")
 
-    print(X.shape)
-    print(y.shape)
+    # Creators:
+    # Mark Hopkins, Erik Reeber, George Forman, Jaap Suermondt
+    # Hewlett-Packard Labs, 1501 Page Mill Rd., Palo Alto, CA 94304
+    #
+    # Donor:
+    # George Forman (gforman at nospam hpl.hp.com) 650-857-7835
+    # http://archive.ics.uci.edu/ml/datasets/Spambase
+    X, y = read_data("data/spambase.data")
+
+    X = np.tile(X, (1, 60))
+
+    # print(X.shape)
+    # print(y.shape)
 
     X_train, y_train, X_test, y_test = train_test_split(X, y, train_ratio=0.75, seed=0)
     m, n = X_train.shape
 
-    B = 5
+    B = 11
     X_train_d = discretize(X_train, B)
     X_test_d = discretize(X_test, B, X_ref=X_train)
 
     domain_sizes = np.ones(n, dtype='int')*B
 
-    nbc = NaiveBayesClassifier(domain_sizes=domain_sizes, laplace=True)
+    nbc = NaiveBayesClassifier(domain_sizes=domain_sizes, laplace=True, logarithmic=True)
 
     nbc.fit(X_train_d, y_train)
 

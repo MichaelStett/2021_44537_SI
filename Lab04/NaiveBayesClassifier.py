@@ -3,12 +3,13 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 
 
 class NaiveBayesClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self, domain_sizes=None, laplace=False):
+    def __init__(self, domain_sizes=None, laplace=False, logarithmic=False):
         self.class_labels_ = None
         self.PY_ = None  # wektor numpy a prawdopodobieństwo klas apriori
         self.P_ = None  # struktura trojwymiarowa z wszytskimi rozkladami warunkowymi P(2,7,1] = Pr(X_7 = 1 | Y=2)
         self.domain_sizes_ = domain_sizes
         self.laplace_ = laplace
+        self._logarithmic = logarithmic
 
     def fit(self, X, y):
         m, n = X.shape
@@ -57,14 +58,17 @@ class NaiveBayesClassifier(BaseEstimator, ClassifierMixin):
         for i in range(m):
             x = X[i]
             for yy in range(self.class_labels_.size):
-                for j in range(n):
-                    scores[i, yy] += np.log2(self.P_[yy, j][x[j]])
-                scores[i, yy] += np.log2(self.PY_[yy])
-            # s= scores[i].sum()
-            # if s > 0.0:
-            #     scores[i] /= s
+                if self._logarithmic:
+                    for j in range(n):
+                        scores[i, yy] += np.log2(self.P_[yy, j][x[j]])
+                else:
+                    for j in range(n):
+                        scores[i, yy] *= self.P_[yy, j][x[j]]
+                if self._logarithmic:
+                    scores[i, yy] += np.log2(self.PY_[yy])
+                else:
+                    s = scores[i].sum()
+                    if s > 0.0:
+                        scores[i] /= s
         return scores
         # print(scores)
-
-#     y*= arg max_y prod_{j=1}^n P(X_j = x_j | Y=y) P(Y-y)
-
