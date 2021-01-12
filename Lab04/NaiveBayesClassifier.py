@@ -55,20 +55,22 @@ class NaiveBayesClassifier(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         m, n = X.shape
         scores = np.ones((m, self.class_labels_.size))
-        for i in range(m):
-            x = X[i]
-            for yy in range(self.class_labels_.size):
-                if self._logarithmic:
-                    for j in range(n):
-                        scores[i, yy] += np.log2(self.P_[yy, j][x[j]])
-                else:
-                    for j in range(n):
-                        scores[i, yy] *= self.P_[yy, j][x[j]]
-                if self._logarithmic:
-                    scores[i, yy] += np.log2(self.PY_[yy])
-                else:
-                    s = scores[i].sum()
-                    if s > 0.0:
-                        scores[i] /= s
+        if self._logarithmic:
+            for i in range(m):
+                x = X[i]
+                for yy in range(self.class_labels_.size):
+                        for j in range(n):
+                            scores[i, yy] += np.log2(self.P_[yy, j][x[j]])
+                    else:
+                        for j in range(n):
+                            scores[i, yy] *= self.P_[yy, j][x[j]]
+                    if self._logarithmic:
+                        scores[i, yy] += np.log2(self.PY_[yy])
+                    else:
+                        s = scores[i].sum()
+                        if s > 0.0:
+                            scores[i] /= s
+
+
         return scores
         # print(scores)

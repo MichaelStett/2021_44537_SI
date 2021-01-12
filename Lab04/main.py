@@ -48,15 +48,15 @@ if __name__ == '__main__':
     # http://archive.ics.uci.edu/ml/datasets/Spambase
     X, y = read_data("data/spambase.data")
 
-    X = np.tile(X, (1, 60))
+    # X = np.tile(X, (1, 60))
 
     # print(X.shape)
     # print(y.shape)
 
-    X_train, y_train, X_test, y_test = train_test_split(X, y, train_ratio=0.75, seed=0)
+    X_train, y_train, X_test, y_test = train_test_split(X, y, train_ratio=0.10, seed=0)
     m, n = X_train.shape
 
-    B = 11
+    B = 20
     X_train_d = discretize(X_train, B)
     X_test_d = discretize(X_test, B, X_ref=X_train)
 
