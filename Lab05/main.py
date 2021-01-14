@@ -1,5 +1,4 @@
 import os
-import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -22,30 +21,38 @@ def calculate_z(x0, c0, x1, c1, sig):
 
 def main():
     np.random.seed(0)
-    shutil.rmtree('plots')
-    os.mkdir('plots')
 
+    files = [f for f in os.listdir('plots') if f.endswith(".png")]
+    for f in files:
+        os.remove(os.path.join('plots', f))
+    
     params = np.genfromtxt(r'params.txt', delimiter=',')
-
+    
     print(f'Number of plots to create: {len(params)}')
+
+    params = [(0.25, 100, 5000)]
+    Centers = []
+
+    m = 1000
+    X1 = np.random.rand(m, 1) * 2 * np.pi  # [ 0, 2pi]
+    X2 = np.random.rand(m, 1) * 2 - 1.0  # [-1,  1]
+
+# 1 Zbiór danych dla zadania
+    X = np.c_[X1, X2]
+    y = np.array([-1 if np.abs(np.sin(x[0])) > np.abs(x[1]) else 1 for x in X])
+
+# 2 Normalizacja zmiennych wejściowych
+    X = np.c_[X[:, 0] / np.pi - 1, X[:, 1]]  # [ 0, 2pi] z do [-1, 1]
 
     for it, param in enumerate(params):
 
         sigma, center_count, k_max = (param[0], int(param[1]), int(param[2]))
 
-        m = 1000
-        X1 = np.random.rand(m, 1) * 2 * np.pi  # [ 0, 2pi]
-        X2 = np.random.rand(m, 1) * 2 - 1.0  # [-1,  1]
-
-# 1 Zbiór danych dla zadania
-        X = np.c_[X1, X2]
-        y = np.array([-1 if np.abs(np.sin(x[0])) > np.abs(x[1]) else 1 for x in X])
-
-# 2 Normalizacja zmiennych wejściowych
-        X = np.c_[X[:, 0] / np.pi - 1, X[:, 1]]  # [ 0, 2pi] z do [-1, 1]
-
 # 3 Podniesienie wymiarowości przestrzeni wejściowej
-        Centers = np.array([(np.random.uniform(-1, 1), np.random.uniform(-1, 1)) for _ in range(center_count)])
+        if len(Centers) != center_count:
+            Centers.extend(np.array([(np.random.uniform(-1, 1), np.random.uniform(-1, 1)) for _ in range(center_count - len(Centers))]))
+            print('Added new centers to list')
+
         z = np.empty((m, center_count))
 
         for i in range(m):
@@ -71,7 +78,7 @@ def main():
 
         # predykcja
         col_bar = plt.contourf(xs, ys, zs, levels=1, colors=['yellow', 'red'])
-        plt.contour(col_bar, levels=[0, 1], colors=('k',), linestyles=('-',), linewidths=(3,))
+        plt.contour(col_bar, levels=[0, 1], colors=('k',), linestyles=('-',), linewidths=(1,))
         # punkty
         colors = ['b' if yi == -1 else 'lightgreen' for yi in y]
         plt.scatter(X[:, 0], X[:, 1], s=8, facecolors='none', edgecolors=colors)
@@ -83,10 +90,10 @@ def main():
         plt.title(f'plot_{sigma:.3f}_{center_count}_{k_max} \n TRAIN ACC: {score}')
         plt.xlabel('$x_1$')
         plt.ylabel('$x_2$')
-        plt.savefig(f'plots/{score:.3f}_plot_{sigma}_{center_count}_{k_max}.png', dpi=300)
+        plt.savefig(f'plots/{score:.3f}_{sigma:.3f}_{center_count}_{k_max}_NR({it+1:03d}).png', dpi=300)
         plt.clf()
 
-        print(f'{it+1}: Created plot with score {score:.3f}')
+        print(f'{it+1:03d}: Created plot with score {score:.3f}')
 
 
 if __name__ == '__main__':

@@ -20,7 +20,7 @@ class SimplePerceptron(BaseEstimator, ClassifierMixin):
         while True:
             E = []    # lista punktów źle zklasyfikowanych
             E_y = []  # lista etykiet
-            for i in range(m):
+            for i in np.random.permutation(m):
                 x = X[i]
                 f = -1 if self.w_.dot(x.T) <= 0 else 1
                 if f != y_normalized[i]:
